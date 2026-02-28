@@ -3,20 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FISCOM 1447H - MATRIX COMMAND</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <title>FISCOM 1447H - COMMAND CENTER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #050b14;
+            --bg-deep: #02060d;
+            --surface: #0a1120;
             --neon-blue: #00f3ff;
+            --neon-blue-dim: rgba(0, 243, 255, 0.15);
             --neon-orange: #ff9d00;
             --neon-green: #00ff41;
             --border: 1px solid rgba(0, 243, 255, 0.3);
+            --text-main: #e0e6ed;
+            --text-muted: #6c7c93;
+        }
+
+        /* Scanline Overlay Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.3;
         }
 
         body {
             background-color: var(--bg-deep);
-            color: #e0e6ed;
+            background-image: radial-gradient(circle at 50% 0%, #0d1e38 0%, transparent 50%);
+            color: var(--text-main);
             font-family: 'Rajdhani', sans-serif;
             margin: 0;
             height: 100vh;
@@ -25,147 +43,244 @@
             overflow: hidden;
         }
 
-        /* HEADER */
+        /* HEADER HUD */
         .header {
-            padding: 15px 20px;
-            background: #000;
+            padding: 15px 25px;
+            background: rgba(2, 6, 13, 0.8);
+            backdrop-filter: blur(10px);
             border-bottom: 2px solid var(--neon-blue);
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 50;
+            box-shadow: 0 4px 20px rgba(0, 243, 255, 0.1);
         }
-        .title h1 { margin: 0; font-family: 'Orbitron'; font-size: 1.2rem; color: var(--neon-blue); letter-spacing: 1px; }
-        .status-badge { font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #555; color: #555; }
         
-        /* TABLE CONTAINER */
+        .title { display: flex; align-items: center; gap: 15px; }
+        .title h1 { 
+            margin: 0; font-family: 'Orbitron'; font-size: 1.4rem; 
+            color: var(--text-main); text-shadow: 0 0 10px var(--neon-blue); 
+            letter-spacing: 2px;
+        }
+        .title span { color: var(--neon-blue); font-weight: bold; }
+        
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .status-badge { 
+            font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; 
+            border: 1px solid var(--text-muted); color: var(--text-muted); 
+            font-family: 'Orbitron'; font-weight: bold; letter-spacing: 1px;
+        }
+
+        /* CONTROL PANEL (FILTER) */
+        .control-panel {
+            background: var(--surface);
+            padding: 12px 25px;
+            border-bottom: 1px solid #1a273f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 40;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .control-panel::-webkit-scrollbar { height: 4px; }
+        .control-panel::-webkit-scrollbar-thumb { background: var(--neon-blue); }
+
+        .filter-label { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--text-muted); margin-right: 10px; }
+        
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--neon-blue-dim);
+            color: var(--neon-blue);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 6px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .filter-btn:hover { background: var(--neon-blue-dim); }
+        .filter-btn.active {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* MATRIX CONTAINER */
         .matrix-container {
             flex: 1;
             overflow: auto;
-            background: radial-gradient(circle at center, #0d1626 0%, #000 100%);
-            padding-bottom: 50px;
+            padding: 20px;
         }
 
         table {
             border-collapse: separate;
-            border-spacing: 0;
+            border-spacing: 8px; /* Jarak antar kartu */
             width: 100%;
-            min-width: 1400px; /* Lebar minimum biar kolom lega */
+            min-width: 1000px;
         }
 
         th {
-            background: #0b1421;
             position: sticky; top: 0; z-index: 10;
-            padding: 12px;
+            padding: 15px;
             color: var(--neon-blue);
             font-family: 'Orbitron';
-            border-bottom: 2px solid var(--neon-blue);
             text-align: left;
             font-size: 0.85rem;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(10, 17, 32, 0.95);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px solid var(--neon-blue-dim);
         }
 
-        /* Sticky First Column (Waktu) */
         th:first-child, td:first-child {
             position: sticky; left: 0;
-            background: #080f1c;
+            background: rgba(10, 17, 32, 0.95);
             z-index: 11;
-            border-right: 1px solid var(--neon-blue);
-            width: 120px;
+            width: 130px;
             text-align: center;
-            font-weight: bold;
+            font-family: 'Orbitron';
+            color: var(--neon-orange);
+            font-size: 1rem;
+            border-right: 2px solid var(--neon-blue-dim);
+            vertical-align: middle;
         }
-        th:first-child { z-index: 12; }
+        th:first-child { z-index: 12; color: var(--text-main); }
 
         td {
-            padding: 10px;
-            border-bottom: 1px solid #222;
-            border-right: 1px solid #222;
+            padding: 0;
             vertical-align: top;
-            font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
 
-        /* CHECKBOX ITEM */
+        /* HUD CARD STYLE FOR TASKS */
+        .task-cell-container {
+            background: rgba(0, 243, 255, 0.03);
+            border: 1px solid var(--neon-blue-dim);
+            border-radius: 6px;
+            padding: 10px;
+            height: 100%;
+            min-height: 60px;
+            box-sizing: border-box;
+        }
+
         .task-item {
             display: flex; flex-direction: column; 
-            margin-bottom: 8px; padding: 6px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            transition: 0.2s;
-            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: 8px; padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 3px solid var(--neon-blue);
+            border-radius: 2px;
+            transition: all 0.2s;
         }
+        .task-item:hover { background: rgba(0, 243, 255, 0.1); transform: translateX(2px); }
+        .task-item:last-child { margin-bottom: 0; }
+        
         .task-item.completed {
+            border-left: 3px solid var(--neon-green);
             background: rgba(0, 255, 65, 0.05);
-            border: 1px solid var(--neon-green);
         }
         
         .task-row { display: flex; align-items: flex-start; }
         
         .cyber-check {
-            width: 18px; height: 18px;
-            margin-right: 10px; cursor: pointer;
-            accent-color: var(--neon-blue);
+            width: 16px; height: 16px;
+            margin-right: 12px; cursor: pointer;
+            accent-color: var(--neon-green);
             margin-top: 3px;
         }
 
-        .task-desc { font-weight: 600; color: #ddd; font-size: 0.9em; line-height: 1.3; }
-        .completed .task-desc { color: #888; text-decoration: line-through; }
+        .task-desc { font-weight: 600; color: var(--text-main); font-size: 0.95em; line-height: 1.4; }
+        .completed .task-desc { color: var(--text-muted); text-decoration: line-through; }
 
         .executor-tag {
             font-size: 0.75em;
-            color: var(--neon-orange);
-            margin-left: 30px; 
+            color: var(--neon-green);
+            margin-left: 28px; 
             margin-top: 4px;
-            font-family: 'Courier New', monospace;
+            font-family: 'Orbitron', monospace;
             display: none;
+            letter-spacing: 0.5px;
         }
         .completed .executor-tag { display: block; }
 
-        /* LOGIN */
+        /* LOGIN SCREEN (BOOT SEQUENCE STYLE) */
         #login-screen {
             position: fixed; inset: 0; background: #000;
             z-index: 9999; display: flex; justify-content: center; align-items: center;
         }
         .login-box { 
-            border: 1px solid var(--neon-blue); padding: 30px; text-align: center; 
-            box-shadow: 0 0 20px var(--neon-blue);
-            background: #050b14;
+            border: 1px solid var(--neon-blue); padding: 40px; text-align: center; 
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            background: rgba(5, 11, 20, 0.9);
+            border-radius: 8px;
+            position: relative;
         }
-        input { background: transparent; border: none; border-bottom: 1px solid white; color: white; text-align: center; font-size: 1.2rem; margin: 15px 0; outline: none; }
-        button { background: var(--neon-blue); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+        .login-box::before {
+            content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border: 1px solid transparent; background: linear-gradient(45deg, var(--neon-blue), transparent, var(--neon-blue)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); -webkit-mask-composite: destination-out; mask-composite: exclude;
+        }
+
+        input { 
+            background: rgba(0, 243, 255, 0.05); border: 1px solid var(--neon-blue-dim); 
+            color: var(--neon-blue); text-align: center; font-size: 1.2rem; 
+            padding: 10px; margin: 20px 0; outline: none; width: 80%; font-family: 'Orbitron';
+        }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        button { 
+            background: var(--neon-blue); color: #000; border: none; 
+            padding: 12px 30px; font-family: 'Orbitron'; font-weight: bold; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        button:hover { background: #fff; box-shadow: 0 0 15px var(--neon-blue); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="color:white; margin-top:0; font-family:'Orbitron'">SYSTEM ACCESS</h2>
-            <input type="text" id="username" placeholder="Masukkan Nama" autocomplete="off">
+            <h2 style="color:var(--text-main); margin-top:0; font-family:'Orbitron'; font-size: 1.8rem; letter-spacing: 2px;">SYS.LOGIN</h2>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:-10px;">FISCOM 1447H DATABASE</p>
+            <input type="text" id="username" placeholder="IDENTIFY ID" autocomplete="off">
             <br>
-            <button onclick="login()">CONNECT SYSTEM</button>
+            <button onclick="login()">INITIALIZE</button>
         </div>
     </div>
 
     <div class="header">
         <div class="title">
-            <h1>SOP FISCOM 1447 H</h1>
+            <h1>FISCOM<span>1447H</span></h1>
         </div>
-        <div>
-            <span id="user-badge" style="color:var(--neon-green); font-weight:bold; margin-right:10px;">GUEST</span>
-            <span id="status-badge" class="status-badge">DISCONNECTED</span>
+        <div class="user-info">
+            <span id="user-badge" style="color:var(--neon-blue); font-family:'Orbitron'; font-size: 0.9rem;">GUEST_ID</span>
+            <span id="status-badge" class="status-badge">OFFLINE</span>
         </div>
+    </div>
+
+    <div class="control-panel">
+        <span class="filter-label">DATALINK FILTER:</span>
+        <button class="filter-btn active" onclick="filterDiv('all', this)">ALL OPR</button>
+        <button class="filter-btn" onclick="filterDiv('mc', this)">MC & ACARA</button>
+        <button class="filter-btn" onclick="filterDiv('sk', this)">SEKRE</button>
+        <button class="filter-btn" onclick="filterDiv('pj', this)">PJ & ACARA</button>
+        <button class="filter-btn" onclick="filterDiv('mh', this)">MEDHUM</button>
+        <button class="filter-btn" onclick="filterDiv('pk', this)">PERKAP</button>
     </div>
 
     <div class="matrix-container">
         <table id="sop-table">
             <thead>
                 <tr>
-                    <th>WAKTU</th>
-                    <th>MC & ACARA</th>
-                    <th>SEKRE</th>
-                    <th>PJ & ACARA</th>
-                    <th>MEDIA & HUMAS</th>
-                    <th>PERKAP</th>
+                    <th>TIMELINE</th>
+                    <th class="col-mc">MC & ACARA</th>
+                    <th class="col-sk">SEKRE</th>
+                    <th class="col-pj">PJ & ACARA</th>
+                    <th class="col-mh">MEDIA & HUMAS</th>
+                    <th class="col-pk">PERKAP</th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -177,11 +292,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // --- KONFIGURASI FIREBASE (FIXED REGION SINGAPORE) ---
+        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAiUV8rKlbNW4MQd5f483wy4pLB3onGxqc",
             authDomain: "sopfiscom47h.firebaseapp.com",
-            // PERHATIKAN: URL INI SUDAH DIGANTI KE FORMAT SINGAPORE
             databaseURL: "https://sopfiscom47h-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "sopfiscom47h",
             storageBucket: "sopfiscom47h.firebasestorage.app",
@@ -189,7 +303,6 @@
             appId: "1:352305789868:web:8c1eb8de2236d9e8895809"
         };
 
-        // Init Firebase
         let db;
         try {
             firebase.initializeApp(firebaseConfig);
@@ -199,23 +312,24 @@
             connectedRef.on("value", (snap) => {
                 const statusEl = document.getElementById("status-badge");
                 if (snap.val() === true) {
-                    statusEl.innerText = "ONLINE";
-                    statusEl.style.borderColor = "#00ff41";
-                    statusEl.style.color = "#00ff41";
+                    statusEl.innerText = "SYS.ONLINE";
+                    statusEl.style.borderColor = "var(--neon-green)";
+                    statusEl.style.color = "var(--neon-green)";
+                    statusEl.style.boxShadow = "0 0 8px rgba(0,255,65,0.4)";
                 } else {
                     statusEl.innerText = "CONNECTING...";
-                    statusEl.style.borderColor = "orange";
-                    statusEl.style.color = "orange";
+                    statusEl.style.borderColor = "var(--neon-orange)";
+                    statusEl.style.color = "var(--neon-orange)";
+                    statusEl.style.boxShadow = "none";
                 }
             });
-
         } catch (e) {
-            alert("Firebase Error: " + e.message);
+            console.error("Firebase Error: " + e.message);
         }
 
         let currentUser = "";
 
-        // --- DATA RUNDOWN REVISI TERBARU ---
+        // --- DATA RUNDOWN (TIDAK ADA POIN YANG DIUBAH) ---
         const rundown = [
             {
                 time: "07.00 - 07.30",
@@ -256,9 +370,7 @@
             {
                 time: "08.50 - 09.00",
                 mc: [{t:"Jeda Persiapan"}],
-                sekre: [],
-                pj: [],
-                medhum: [],
+                sekre: [], pj: [], medhum: [],
                 perkap: [{t:"Steril Panggung"}, {t:"Cek HDMI"}]
             },
             {
@@ -276,8 +388,7 @@
             },
             {
                 time: "09.55 - 10.05",
-                mc: [],
-                sekre: [], pj: [], 
+                mc: [], sekre: [], pj: [], 
                 medhum: [{t:"Persiapan Finalis Cerpen"}], 
                 perkap: [{t:"Set Mic"}]
             },
@@ -307,8 +418,7 @@
                 mc: [{t:"Hiburan / Quiz"}],
                 sekre: [{t:"FINALISASI REKAP NILAI"}],
                 pj: [{t:"Crosscheck Juri 2x"}],
-                medhum: [],
-                perkap: []
+                medhum: [], perkap: []
             },
             {
                 time: "13.40 - 14.00",
@@ -327,13 +437,12 @@
             }
         ];
 
-        // RENDER TABLE
+        // RENDER TABLE DENGAN HUD STYLE
         const tbody = document.getElementById('table-body');
         
         rundown.forEach((row, index) => {
             let tr = document.createElement('tr');
             
-            // Generate Cells
             let html = `<td>${row.time}</td>`;
             html += createCell(row.mc, index, 'mc');
             html += createCell(row.sekre, index, 'sk');
@@ -346,25 +455,52 @@
         });
 
         function createCell(tasks, rowIndex, colCode) {
-            if (!tasks || tasks.length === 0) return "<td></td>";
+            let cell = `<td class="col-${colCode}">`;
             
-            let cell = "<td>";
-            tasks.forEach((task, taskIndex) => {
-                const uniqueId = `r${rowIndex}_${colCode}_${taskIndex}`;
-                cell += `
-                    <div class="task-item" id="box-${uniqueId}">
-                        <div class="task-row">
-                            <input type="checkbox" class="cyber-check" 
-                                id="chk-${uniqueId}" 
-                                onclick="updateTask('${uniqueId}')">
-                            <span class="task-desc">${task.t}</span>
+            if (tasks && tasks.length > 0) {
+                cell += `<div class="task-cell-container">`;
+                tasks.forEach((task, taskIndex) => {
+                    const uniqueId = `r${rowIndex}_${colCode}_${taskIndex}`;
+                    cell += `
+                        <div class="task-item" id="box-${uniqueId}">
+                            <div class="task-row">
+                                <input type="checkbox" class="cyber-check" 
+                                    id="chk-${uniqueId}" 
+                                    onclick="updateTask('${uniqueId}')">
+                                <span class="task-desc">${task.t}</span>
+                            </div>
+                            <div class="executor-tag" id="tag-${uniqueId}"></div>
                         </div>
-                        <div class="executor-tag" id="tag-${uniqueId}"></div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+                cell += `</div>`;
+            } else {
+                // Biar desain tetap stabil walau kosong
+                cell += `<div class="task-cell-container" style="border-color: transparent; background: transparent;"></div>`;
+            }
+            
             cell += "</td>";
             return cell;
+        }
+
+        // FUNGSI FILTER PER DIVISI
+        function filterDiv(divCode, btnElement) {
+            // Update UI Tombol
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const allCols = ['mc', 'sk', 'pj', 'mh', 'pk'];
+            
+            allCols.forEach(col => {
+                const elements = document.querySelectorAll('.col-' + col);
+                elements.forEach(el => {
+                    if (divCode === 'all' || col === divCode) {
+                        el.style.display = 'table-cell';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                });
+            });
         }
 
         // LOGIN SYSTEM
@@ -372,17 +508,27 @@
             const input = document.getElementById("username").value;
             if (input.trim() !== "") {
                 currentUser = input.toUpperCase();
-                document.getElementById("user-badge").innerText = "OP: " + currentUser;
-                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("user-badge").innerText = "OP_ID: " + currentUser;
+                document.getElementById("login-screen").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("login-screen").style.display = "none";
+                }, 300);
                 startListening();
             } else {
-                alert("Masukkan nama dulu!");
+                // Efek error ringan kalau kosong
+                const box = document.querySelector('.login-box');
+                box.style.border = "1px solid red";
+                box.style.boxShadow = "0 0 20px red";
+                setTimeout(() => {
+                    box.style.border = "1px solid var(--neon-blue)";
+                    box.style.boxShadow = "0 0 30px rgba(0, 243, 255, 0.2)";
+                }, 500);
             }
         }
 
-        // ENGINE
+        // ENGINE FIREBASE
         function updateTask(id) {
-            if (!db) return alert("Database Error!");
+            if (!db) return alert("System Offline!");
             
             const checkbox = document.getElementById(`chk-${id}`);
             const isChecked = checkbox.checked;
@@ -394,7 +540,7 @@
                 by: isChecked ? currentUser : null,
                 when: isChecked ? timeString : null
             }).catch(err => {
-                alert("Gagal simpan: " + err.message);
+                alert("Sync Error: " + err.message);
                 checkbox.checked = !isChecked;
             });
         }
@@ -413,7 +559,7 @@
                             checkbox.checked = item.done;
                             if (item.done) {
                                 box.classList.add("completed");
-                                tag.innerText = `✓ ${item.by} [${item.when}]`;
+                                tag.innerText = `[OK] BY ${item.by} @ ${item.when}`;
                             } else {
                                 box.classList.remove("completed");
                                 tag.innerText = "";
