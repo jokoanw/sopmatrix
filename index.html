@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FISCOM 1447H - MATRIX COMMAND</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #050b14;
@@ -18,7 +18,7 @@
             background-color: var(--bg-deep);
             background-image: radial-gradient(circle at center, #0a1120 0%, #020408 100%);
             color: #e0e6ed;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Inter', sans-serif; /* Menggunakan Inter untuk teks utama */
             margin: 0;
             height: 100vh;
             display: flex;
@@ -49,8 +49,8 @@
             z-index: 50;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
         }
-        .title h1 { margin: 0; font-family: 'Orbitron'; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 2px; text-shadow: 0 0 8px var(--neon-blue); }
-        .status-badge { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; border: 1px solid #555; color: #555; font-family: 'Orbitron'; font-weight: bold;}
+        .title h1 { margin: 0; font-family: 'Roboto Mono', monospace; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 1px; text-shadow: 0 0 8px var(--neon-blue); }
+        .status-badge { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; border: 1px solid #555; color: #555; font-family: 'Roboto Mono', monospace; font-weight: bold;}
         
         /* FILTER CONTAINER (Tampilan Baru) */
         .filter-container {
@@ -67,7 +67,7 @@
             border: 1px solid var(--neon-blue);
             color: var(--neon-blue);
             padding: 6px 15px;
-            font-family: 'Orbitron';
+            font-family: 'Roboto Mono', monospace;
             font-size: 0.85rem;
             cursor: pointer;
             border-radius: 3px;
@@ -99,7 +99,7 @@
             position: sticky; top: 0; z-index: 10;
             padding: 15px 12px;
             color: var(--neon-blue);
-            font-family: 'Orbitron';
+            font-family: 'Roboto Mono', monospace;
             border-bottom: 2px solid var(--neon-blue);
             text-align: left;
             font-size: 0.9rem;
@@ -115,10 +115,11 @@
             border-right: 2px solid var(--neon-blue);
             width: 120px;
             text-align: center;
-            font-family: 'Orbitron';
+            font-family: 'Roboto Mono', monospace;
             color: var(--neon-orange);
+            font-weight: bold;
         }
-        th:first-child { z-index: 12; color: var(--neon-blue); }
+        th:first-child { z-index: 12; color: var(--neon-blue); font-weight: normal; }
 
         td {
             padding: 10px;
@@ -126,6 +127,7 @@
             border-right: 1px solid rgba(255,255,255,0.05);
             vertical-align: top;
             font-size: 0.9rem;
+            line-height: 1.5;
         }
 
         /* CHECKBOX ITEM */
@@ -154,18 +156,18 @@
             width: 18px; height: 18px;
             margin-right: 10px; cursor: pointer;
             accent-color: var(--neon-green);
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
-        .task-desc { font-weight: 600; color: #ddd; font-size: 0.95em; line-height: 1.4; }
-        .completed .task-desc { color: #666; text-decoration: line-through; }
+        .task-desc { font-weight: 600; color: #ddd; font-size: 0.95em; }
+        .completed .task-desc { color: #777; text-decoration: line-through; }
 
         .executor-tag {
             font-size: 0.75em;
             color: var(--neon-green);
             margin-left: 30px; 
             margin-top: 4px;
-            font-family: 'Orbitron', monospace;
+            font-family: 'Roboto Mono', monospace;
             display: none;
         }
         .completed .executor-tag { display: block; }
@@ -181,8 +183,8 @@
             background: #050b14;
             border-radius: 5px;
         }
-        input { background: rgba(0,243,255,0.05); border: none; border-bottom: 2px solid var(--neon-blue); color: white; text-align: center; font-size: 1.2rem; margin: 20px 0; padding: 10px; outline: none; font-family: 'Orbitron'; }
-        button { background: var(--neon-blue); color: #000; border: none; padding: 12px 25px; font-weight: bold; font-family: 'Orbitron'; cursor: pointer; transition: 0.2s; }
+        input { background: rgba(0,243,255,0.05); border: none; border-bottom: 2px solid var(--neon-blue); color: white; text-align: center; font-size: 1.2rem; margin: 20px 0; padding: 10px; outline: none; font-family: 'Roboto Mono', monospace; }
+        button { background: var(--neon-blue); color: #000; border: none; padding: 12px 25px; font-weight: bold; font-family: 'Roboto Mono', monospace; cursor: pointer; transition: 0.2s; }
         button:hover { background: #fff; box-shadow: 0 0 15px var(--neon-blue); }
     </style>
 </head>
@@ -190,7 +192,7 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="color:white; margin-top:0; font-family:'Orbitron'">SYSTEM ACCESS</h2>
+            <h2 style="color:white; margin-top:0; font-family:'Roboto Mono', monospace;">SYSTEM ACCESS</h2>
             <input type="text" id="username" placeholder="Masukkan Nama" autocomplete="off">
             <br>
             <button onclick="login()">CONNECT SYSTEM</button>
@@ -202,7 +204,7 @@
             <h1>SOP FISCOM 1447 H</h1>
         </div>
         <div>
-            <span id="user-badge" style="color:var(--neon-green); font-weight:bold; margin-right:10px; font-family:'Orbitron';">GUEST</span>
+            <span id="user-badge" style="color:var(--neon-green); font-weight:bold; margin-right:10px; font-family:'Roboto Mono', monospace;">GUEST</span>
             <span id="status-badge" class="status-badge">DISCONNECTED</span>
         </div>
     </div>
