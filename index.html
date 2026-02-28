@@ -91,7 +91,7 @@
             border-collapse: separate;
             border-spacing: 0;
             width: 100%;
-            min-width: 1400px;
+            min-width: 1700px; /* Diperlebar biar 8 kolom nggak sempit */
         }
 
         th {
@@ -211,9 +211,11 @@
         <button class="filter-btn active" onclick="filterDiv('all', this)">TAMPIL SEMUA</button>
         <button class="filter-btn" onclick="filterDiv(2, this)">MC & ACARA</button>
         <button class="filter-btn" onclick="filterDiv(3, this)">SEKRE</button>
-        <button class="filter-btn" onclick="filterDiv(4, this)">PJ & ACARA</button>
-        <button class="filter-btn" onclick="filterDiv(5, this)">MEDIA & HUMAS</button>
-        <button class="filter-btn" onclick="filterDiv(6, this)">PERKAP</button>
+        <button class="filter-btn" onclick="filterDiv(4, this)">PJ</button>
+        <button class="filter-btn" onclick="filterDiv(5, this)">ACARA</button>
+        <button class="filter-btn" onclick="filterDiv(6, this)">MEDIA</button>
+        <button class="filter-btn" onclick="filterDiv(7, this)">HUMAS</button>
+        <button class="filter-btn" onclick="filterDiv(8, this)">PERKAP</button>
     </div>
 
     <div class="matrix-container">
@@ -223,8 +225,10 @@
                     <th>WAKTU</th>
                     <th>MC & ACARA</th>
                     <th>SEKRE</th>
-                    <th>PJ & ACARA</th>
-                    <th>MEDIA & HUMAS</th>
+                    <th>PJ</th>
+                    <th>ACARA</th>
+                    <th>MEDIA</th>
+                    <th>HUMAS</th>
                     <th>PERKAP</th>
                 </tr>
             </thead>
@@ -237,8 +241,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // --- KODINGAN JS DI BAWAH INI 100% SAMA DENGAN VERSI ASLIMU ---
-
         const firebaseConfig = {
             apiKey: "AIzaSyAiUV8rKlbNW4MQd5f483wy4pLB3onGxqc",
             authDomain: "sopfiscom47h.firebaseapp.com",
@@ -275,90 +277,101 @@
 
         let currentUser = "";
 
+        // RUNDOWN DATA YANG SUDAH DIPILAH (PJ & ACARA PISAH, MEDIA & HUMAS PISAH)
         const rundown = [
             {
                 time: "07.00 - 07.30",
                 mc: [{t:"Standby & Cek Sound"}],
                 sekre: [{t:"Rekapitulasi registrasi on-time"}],
-                pj: [{t:"Briefing Juri"}, {t:"Koordinasi Form Nilai dg Sekre"}],
-                medhum: [{t:"Dokumentasi Awal"}, {t:"Sambut Finalis"}],
+                pj: [{t:"Briefing Juri"}],
+                acara: [{t:"Koordinasi Form Nilai dg Sekre"}],
+                media: [{t:"Dokumentasi Awal"}],
+                humas: [{t:"Sambut Finalis"}],
                 perkap: [{t:"Cek Sound System"}, {t:"Banner Terpasang"}]
             },
             {
                 time: "07.30 - 08.00",
                 mc: [{t:"Opening Ceremony"}],
                 sekre: [{t:"Siapkan Form Penilaian"}],
-                pj: [{t:"Briefing Teknis"}],
-                medhum: [{t:"Foto Pembukaan"}],
+                pj: [],
+                acara: [{t:"Briefing Teknis"}],
+                media: [{t:"Foto Pembukaan"}],
+                humas: [],
                 perkap: [{t:"Mic Ready (2 unit)"}]
             },
             {
                 time: "08.00 - 08.10",
                 mc: [{t:"Main Launch"}, {t:"Tone: Semangat!"}],
-                sekre: [], pj: [], medhum: [], perkap: []
+                sekre: [], pj: [], acara: [], media: [], humas: [], perkap: []
             },
             {
                 time: "08.10 - 08.20",
                 mc: [{t:"Tilawah Quran"}],
-                sekre: [], pj: [], 
-                medhum: [{t:"Foto Qari"}], 
+                sekre: [], pj: [], acara: [], 
+                media: [{t:"Foto Qari"}], 
+                humas: [],
                 perkap: [{t:"Mic Stand Ready"}]
             },
             {
                 time: "08.20 - 08.50",
                 mc: [{t:"Sambutan Ketua"}, {t:"Sambutan Pembina"}],
                 sekre: [{t:"Standby"}],
-                pj: [{t:"Time Keeper (Kode)"}],
-                medhum: [{t:"Foto Sambutan"}],
+                pj: [],
+                acara: [{t:"Time Keeper (Kode)"}],
+                media: [{t:"Foto Sambutan"}],
+                humas: [],
                 perkap: [{t:"Cek AC/Kipas"}]
             },
             {
                 time: "08.50 - 09.00",
                 mc: [{t:"Jeda Persiapan"}],
-                sekre: [],
-                pj: [],
-                medhum: [],
+                sekre: [], pj: [], acara: [], media: [], humas: [],
                 perkap: [{t:"Steril Panggung"}, {t:"Cek HDMI"}]
             },
             {
                 time: "09.10 - 09.45",
                 mc: [{t:"Panggil Finalis Esai 1-5"}],
                 sekre: [{t:"Rekap Nilai Masuk"}],
-                pj: [{t:"Timer 7 Menit + 2 Menit Q&A"}],
-                medhum: [{t:"Mengarahkan Finalis Esai 1-5"}, {t:"Live Story IG"}],
+                pj: [],
+                acara: [{t:"Timer 7 Menit + 2 Menit Q&A"}],
+                media: [{t:"Live Story IG"}],
+                humas: [{t:"Mengarahkan Finalis Esai 1-5"}],
                 perkap: [{t:"Pointer Ready"}, {t:"Operator Slide"}]
             },
             {
                 time: "09.45 - 09.55",
                 mc: [{t:"Ice Breaking 1"}],
-                sekre: [], pj: [], medhum: [], perkap: []
+                sekre: [], pj: [], acara: [], media: [], humas: [], perkap: []
             },
             {
                 time: "09.55 - 10.05",
-                mc: [],
-                sekre: [], pj: [], 
-                medhum: [{t:"Persiapan Finalis Cerpen"}], 
+                mc: [], sekre: [], pj: [], acara: [], 
+                media: [], 
+                humas: [{t:"Persiapan Finalis Cerpen"}],
                 perkap: [{t:"Set Mic"}]
             },
             {
                 time: "10.05 - 11.17",
                 mc: [{t:"Lomba Cerpen"}],
                 sekre: [{t:"Kumpulkan Nilai Juri"}],
-                pj: [{t:"Timer 7 Menit + 2 Menit Q&A"}],
-                medhum: [{t:"Mengarahkan Finalis Cerpen 1-10"}, {t:"Foto Tiap Peserta"}],
+                pj: [],
+                acara: [{t:"Timer 7 Menit + 2 Menit Q&A"}],
+                media: [{t:"Foto Tiap Peserta"}],
+                humas: [{t:"Mengarahkan Finalis Cerpen 1-10"}],
                 perkap: [{t:"Standby Mic Cadangan"}]
             },
             {
                 time: "11.17 - 11.30",
                 mc: [{t:"Ice Breaking 2"}, {t:"Info Ishoma"}],
-                sekre: [], pj: [], medhum: [], perkap: []
+                sekre: [], pj: [], acara: [], media: [], humas: [], perkap: []
             },
             {
                 time: "11.30 - 12.30",
                 mc: [{t:"ISHOMA"}],
                 sekre: [{t:"Persiapan Perekapan Nilai Juri"}],
                 pj: [{t:"Amankan Ruang Lomba"}],
-                medhum: [],
+                acara: [],
+                media: [], humas: [],
                 perkap: [{t:"Venue Tetap Dijaga"}]
             },
             {
@@ -366,22 +379,24 @@
                 mc: [{t:"Hiburan / Quiz"}],
                 sekre: [{t:"FINALISASI REKAP NILAI"}],
                 pj: [{t:"Crosscheck Juri 2x"}],
-                medhum: [],
-                perkap: []
+                acara: [],
+                media: [], humas: [], perkap: []
             },
             {
                 time: "13.40 - 14.00",
                 mc: [{t:"Pengumuman Juara"}],
                 sekre: [{t:"Serahkan SK Juara"}],
-                pj: [],
-                medhum: [{t:"Foto Pemenang"}],
+                pj: [], acara: [],
+                media: [{t:"Foto Pemenang"}],
+                humas: [],
                 perkap: [{t:"Bawa Piala ke Panggung"}, {t:"Musik Victory Standby"}]
             },
             {
                 time: "14.00 - 14.15",
                 mc: [{t:"Penutupan & Doa"}],
-                sekre: [], pj: [], 
-                medhum: [{t:"Foto Bersama"}], 
+                sekre: [], pj: [], acara: [],
+                media: [{t:"Foto Bersama"}], 
+                humas: [],
                 perkap: [{t:"Operasi Semut (Bersih)"}]
             }
         ];
@@ -392,12 +407,14 @@
         rundown.forEach((row, index) => {
             let tr = document.createElement('tr');
             
-            // Generate Cells
+            // Generate Cells berdasarkan urutan 8 kolom baru
             let html = `<td>${row.time}</td>`;
             html += createCell(row.mc, index, 'mc');
             html += createCell(row.sekre, index, 'sk');
             html += createCell(row.pj, index, 'pj');
-            html += createCell(row.medhum, index, 'mh');
+            html += createCell(row.acara, index, 'ac'); // Kolom Acara
+            html += createCell(row.media, index, 'md');
+            html += createCell(row.humas, index, 'hm');
             html += createCell(row.perkap, index, 'pk');
             
             tr.innerHTML = html;
@@ -439,7 +456,7 @@
             }
         }
 
-        // ENGINE
+        // ENGINE FIREBASE
         function updateTask(id) {
             if (!db) return alert("Database Error!");
             
@@ -483,22 +500,19 @@
             });
         }
 
-        // --- TAMBAHAN SCRIPT HANYA UNTUK FITUR FILTER (TIDAK MENGGANGGU FUNGSI UTAMA) ---
+        // FUNGSI FILTER (DISESUAIKAN DENGAN 8 KOLOM BARU)
         function filterDiv(targetCol, btnElement) {
-            // Ubah gaya tombol aktif
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
             const table = document.getElementById('sop-table');
-            // Mulai dari baris 0 (thead) sampai akhir tbody
             for (let i = 0; i < table.rows.length; i++) {
                 const cells = table.rows[i].cells;
-                // Looping sel di setiap baris (mulai index 1, karena index 0 = WAKTU yang selalu nampil)
                 for (let j = 1; j < cells.length; j++) {
                     if (targetCol === 'all' || j === (targetCol - 1)) {
-                        cells[j].style.display = ''; // Munculkan
+                        cells[j].style.display = ''; 
                     } else {
-                        cells[j].style.display = 'none'; // Sembunyikan
+                        cells[j].style.display = 'none'; 
                     }
                 }
             }
